@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>IoT Security Dashboard</title>
+
+    <link rel="stylesheet" href="style.css">
+    <script src="chart.umd.min.js"></script>
+    <script>
+        if (typeof Chart === "undefined") {
+            document.write('<script src="https://cdn.jsdelivr.net/npm/chart.js"><\/script>');
+        }
+    </script>
+</head>
+
+<body>
+
+    <header>
+        <div>
+            <h1>IoT Security Dashboard</h1>
+            <p>Real-Time Device Monitoring & Threat Detection</p>
+        </div>
+
+        <div class="connection">
+            <span id="connectionDot"></span>
+            <span id="connectionText">Connecting...</span>
+        </div>
+    </header>
+
+
+    <main>
+
+        <!-- Device Information -->
+
+        <section class="device-section">
+
+            <h2>Device Information</h2>
+
+            <div class="cards">
+
+                <div class="card">
+                    <span>Device ID</span>
+                    <strong id="deviceId">--</strong>
+                </div>
+
+                <div class="card">
+                    <span>MAC Address</span>
+                    <strong id="mac">--</strong>
+                </div>
+
+                <div class="card">
+                    <span>IP Address</span>
+                    <strong id="ip">--</strong>
+                </div>
+
+                <div class="card">
+                    <span>Firmware</span>
+                    <strong id="firmware">--</strong>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Security -->
+
+        <section>
+
+            <h2>Security Status</h2>
+
+            <div class="security-cards">
+
+                <div class="security-card">
+                    <span>Security</span>
+                    <strong id="securityStatus">--</strong>
+                </div>
+
+                <div class="security-card">
+                    <span>Firmware Integrity</span>
+                    <strong id="firmwareStatus">--</strong>
+                </div>
+
+                <div class="security-card">
+                    <span>ML Detection</span>
+                    <strong id="mlStatus">--</strong>
+                </div>
+
+                <div class="security-card">
+                    <span>Threat</span>
+                    <strong id="threat">--</strong>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Telemetry -->
+
+        <section>
+
+            <h2>Live Telemetry</h2>
+
+            <div class="cards">
+
+                <div class="card">
+                    <span>RSSI</span>
+                    <strong id="rssi">--</strong>
+                    <small>dBm</small>
+                </div>
+
+                <div class="card">
+                    <span>Free Heap</span>
+                    <strong id="heap">--</strong>
+                    <small>bytes</small>
+                </div>
+
+                <div class="card">
+                    <span>Uptime</span>
+                    <strong id="uptime">--</strong>
+                    <small>seconds</small>
+                </div>
+
+                <div class="card">
+                    <span>Packets</span>
+                    <strong id="packets">--</strong>
+                </div>
+
+                <div class="card">
+                    <span>Requests</span>
+                    <strong id="requests">--</strong>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Firmware -->
+
+        <section>
+
+            <h2>Firmware Integrity</h2>
+
+            <div class="firmware-box">
+
+                <div>
+                    <span>Current MD5</span>
+                    <p id="firmwareMd5">--</p>
+                </div>
+
+                <div>
+                    <span>Last Update</span>
+                    <p id="timestamp">--</p>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Behavior -->
+
+        <section>
+
+            <h2>Behavior Monitoring</h2>
+
+            <div class="behavior-grid">
+
+                <div class="behavior-card">
+                    <span>Packet Rate</span>
+                    <strong id="packetRate">--</strong>
+                    <small>packets/sec</small>
+                </div>
+
+                <div class="behavior-card">
+                    <span>Request Rate</span>
+                    <strong id="requestRate">--</strong>
+                    <small>requests/sec</small>
+                </div>
+
+                <div class="behavior-card">
+                    <span>Heap Change</span>
+                    <strong id="heapChange">--</strong>
+                    <small>bytes</small>
+                </div>
+
+                <div class="behavior-card">
+                    <span>RSSI Change</span>
+                    <strong id="rssiChange">--</strong>
+                    <small>dBm</small>
+                </div>
+
+                <div class="behavior-card">
+                    <span>Unexpected Reboot</span>
+                    <strong id="reboot">--</strong>
+                </div>
+
+                <div class="behavior-card">
+                    <span>Anomaly Score</span>
+                    <strong id="anomalyScore">--</strong>
+                </div>
+
+                <div class="behavior-card reason-card">
+                    <span>Anomaly Reason / Attribution</span>
+                    <strong id="anomalyReason">Device behavior is within the learned normal baseline.</strong>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Attack / Anomaly Simulation Controls -->
+
+        <section class="simulation-section">
+
+            <div class="simulation-header">
+                <h2>Attack / Anomaly Simulation (Safe Demo Mode)</h2>
+                <p class="section-desc">Generate synthetic telemetry in-memory to safely evaluate the detection pipeline. No physical packets or commands are sent to devices or networks.</p>
+            </div>
+
+            <div class="simulation-buttons">
+                <button class="sim-btn" onclick="triggerSimulation('traffic_spike')">Traffic Spike</button>
+                <button class="sim-btn" onclick="triggerSimulation('memory_stress')">Memory Stress</button>
+                <button class="sim-btn" onclick="triggerSimulation('signal_anomaly')">Signal Anomaly</button>
+                <button class="sim-btn" onclick="triggerSimulation('reboot_anomaly')">Reboot Anomaly</button>
+                <button class="sim-btn" onclick="triggerSimulation('combined_anomaly')">Combined Anomaly</button>
+                <button class="sim-btn warn" onclick="triggerSimulation('firmware_tamper')">Firmware Tamper</button>
+            </div>
+
+            <div id="simResultBox" class="sim-result-box" style="display: none;">
+                <div class="sim-result-header">
+                    <span class="sim-title">SIMULATION RESULT</span>
+                    <span id="simResultBadge" class="badge">ANOMALY</span>
+                </div>
+                <div class="sim-result-grid">
+                    <div><span>Simulation Type:</span> <strong id="simResultType">--</strong></div>
+                    <div><span>Detection:</span> <strong id="simResultDetection">--</strong></div>
+                    <div><span>Threat:</span> <strong id="simResultThreat">--</strong></div>
+                    <div><span>Anomaly Score:</span> <strong id="simResultScore">--</strong></div>
+                    <div><span>Security Status:</span> <strong id="simResultSecurity">--</strong></div>
+                    <div><span>Firmware Status:</span> <strong id="simResultFirmware">--</strong></div>
+                    <div class="sim-result-full"><span>Reason:</span> <strong id="simResultReason">--</strong></div>
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- Behavioral & Security Graphs -->
+
+        <section class="charts-section">
+
+            <h2>Live Behavioral & Security Graphs</h2>
+
+            <div class="charts-grid">
+
+                <div class="chart-card">
+                    <h3>RSSI History (dBm)</h3>
+                    <div class="chart-container">
+                        <canvas id="rssiChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h3>Packet Rate (packets/sec)</h3>
+                    <div class="chart-container">
+                        <canvas id="packetRateChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h3>Request Rate (requests/sec)</h3>
+                    <div class="chart-container">
+                        <canvas id="requestRateChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h3>Free Heap Memory (bytes)</h3>
+                    <div class="chart-container">
+                        <canvas id="heapChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h3>Anomaly Score</h3>
+                    <div class="chart-container">
+                        <canvas id="anomalyChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h3>Detection Status (Normal vs Anomaly)</h3>
+                    <div class="chart-container">
+                        <canvas id="statusChart"></canvas>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Real-Time Security Alerts & Incidents -->
+
+        <section class="alerts-section">
+
+            <div class="alerts-header">
+                <div>
+                    <h2>Security Alerts & Incidents</h2>
+                    <p class="section-desc">Automated incident response feed with deduplicated alert tracking</p>
+                </div>
+
+                <div class="alert-summary-cards">
+                    <div class="alert-stat-card">
+                        <span>Total Alerts</span>
+                        <strong id="alertSumTotal">0</strong>
+                    </div>
+                    <div class="alert-stat-card critical">
+                        <span>Critical</span>
+                        <strong id="alertSumCritical">0</strong>
+                    </div>
+                    <div class="alert-stat-card high">
+                        <span>High</span>
+                        <strong id="alertSumHigh">0</strong>
+                    </div>
+                    <div class="alert-stat-card medium">
+                        <span>Medium</span>
+                        <strong id="alertSumMedium">0</strong>
+                    </div>
+                    <div class="alert-stat-card low">
+                        <span>Low</span>
+                        <strong id="alertSumLow">0</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="alerts-table">
+                    <thead>
+                        <tr>
+                            <th>Severity</th>
+                            <th>Alert Type</th>
+                            <th>Threat</th>
+                            <th>Device ID</th>
+                            <th>Anomaly Score</th>
+                            <th>Timestamp</th>
+                            <th>Reason / Attribution</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="alertsTableBody">
+                        <tr>
+                            <td colspan="8" style="text-align: center; color: #94a3b8; padding: 20px;">Waiting for security alerts...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </section>
+
+
+        <!-- Detection History -->
+
+        <section class="history-section">
+
+            <div class="history-header">
+                <div>
+                    <h2>Detection History</h2>
+                    <p class="section-desc">Chronological log of verified security events and ML evaluations</p>
+                </div>
+
+                <div class="summary-pills">
+                    <span class="pill">Total: <strong id="sumTotal">0</strong></span>
+                    <span class="pill normal">Normal: <strong id="sumNormal">0</strong></span>
+                    <span class="pill danger">Anomalies: <strong id="sumAnomalies">0</strong></span>
+                    <span class="pill warn">Firmware Tampered: <strong id="sumTampered">0</strong></span>
+                    <span class="pill warn">Rogue Devices: <strong id="sumRogue">0</strong></span>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Device</th>
+                            <th>Security</th>
+                            <th>Firmware</th>
+                            <th>ML Detection</th>
+                            <th>Threat</th>
+                            <th>Anomaly Score</th>
+                            <th>Anomaly Reason</th>
+                            <th>Event Type</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody">
+                        <tr>
+                            <td colspan="9" style="text-align: center; color: #94a3b8; padding: 20px;">Loading detection history...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </section>
+
+
+        <footer>
+            Last refreshed:
+            <span id="lastRefresh">--</span>
+        </footer>
+
+    </main>
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>

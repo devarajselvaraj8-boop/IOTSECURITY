@@ -1,0 +1,149 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #0f172a;
+    color: #e2e8f0;
+}
+
+header {
+    background: #111827;
+    padding: 25px 40px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    border-bottom: 1px solid #334155;
+}
+
+header h1 {
+    font-size: 28px;
+}
+
+header p {
+    margin-top: 6px;
+    color: #94a3b8;
+}
+
+.connection {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#connectionDot {
+    width: 12px;
+    height: 12px;
+    background: #64748b;
+    border-radius: 50%;
+}
+
+main {
+    max-width: 1200px;
+    margin: auto;
+    padding: 30px;
+}
+
+section {
+    margin-bottom: 35px;
+}
+
+h2 {
+    margin-bottom: 18px;
+    font-size: 20px;
+}
+
+.cards,
+.security-cards,
+.behavior-grid {
+    display: grid;
+    gap: 15px;
+}
+
+.cards {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.security-cards {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.behavior-grid {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.card,
+.security-card,
+.behavior-card {
+    background: #1e293b;
+    padding: 22px;
+    border-radius: 10px;
+
+    border: 1px solid #334155;
+}
+
+.card span,
+.security-card span,
+.behavior-card span {
+    display: block;
+    color: #94a3b8;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.card strong,
+.security-card strong,
+.behavior-card strong {
+    font-size: 20px;
+}
+
+.card small,
+.behavior-card small {
+    color: #64748b;
+}
+
+.firmware-box {
+    background: #1e293b;
+    border: 1px solid #334155;
+
+    padding: 25px;
+    border-radius: 10px;
+}
+
+.firmware-box span {
+    color: #94a3b8;
+}
+
+.firmware-box p {
+    margin-top: 8px;
+    margin-bottom: 20px;
+    word-break: break-all;
+}
+
+footer {
+    text-align: center;
+    color: #64748b;
+    padding: 30px;
+}
+
+@media (max-width: 800px) {
+
+    .security-cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .behavior-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+}

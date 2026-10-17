@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>IoT Security Dashboard</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header>
+        <div>
+            <h1>IoT Security Dashboard</h1>
+            <p>Real-Time Device Monitoring & Threat Detection</p>
+        </div>
+
+        <div class="connection">
+            <span id="connectionDot"></span>
+            <span id="connectionText">Connecting...</span>
+        </div>
+    </header>
+
+
+    <main>
+
+        <!-- Device Information -->
+
+        <section class="device-section">
+
+            <h2>Device Information</h2>
+
+            <div class="cards">
+
+                <div class="card">
+                    <span>Device ID</span>
+                    <strong id="deviceId">--</strong>
+                </div>
+
+                <div class="card">
+                    <span>MAC Address</span>
+                    <strong id="mac">--</strong>
+                </div>
+
+                <div class="card">
+                    <span>IP Address</span>
+                    <strong id="ip">--</strong>
+                </div>
+
+                <div class="card">
+                    <span>Firmware</span>
+                    <strong id="firmware">--</strong>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Security -->
+
+        <section>
+
+            <h2>Security Status</h2>
+
+            <div class="security-cards">
+
+                <div class="security-card">
+                    <span>Security</span>
+                    <strong id="securityStatus">--</strong>
+                </div>
+
+                <div class="security-card">
+                    <span>Firmware Integrity</span>
+                    <strong id="firmwareStatus">--</strong>
+                </div>
+
+                <div class="security-card">
+                    <span>ML Detection</span>
+                    <strong id="mlStatus">--</strong>
+                </div>
+
+                <div class="security-card">
+                    <span>Threat</span>
+                    <strong id="threat">--</strong>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Telemetry -->
+
+        <section>
+
+            <h2>Live Telemetry</h2>
+
+            <div class="cards">
+
+                <div class="card">
+                    <span>RSSI</span>
+                    <strong id="rssi">--</strong>
+                    <small>dBm</small>
+                </div>
+
+                <div class="card">
+                    <span>Free Heap</span>
+                    <strong id="heap">--</strong>
+                    <small>bytes</small>
+                </div>
+
+                <div class="card">
+                    <span>Uptime</span>
+                    <strong id="uptime">--</strong>
+                    <small>seconds</small>
+                </div>
+
+                <div class="card">
+                    <span>Packets</span>
+                    <strong id="packets">--</strong>
+                </div>
+
+                <div class="card">
+                    <span>Requests</span>
+                    <strong id="requests">--</strong>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Firmware -->
+
+        <section>
+
+            <h2>Firmware Integrity</h2>
+
+            <div class="firmware-box">
+
+                <div>
+                    <span>Current MD5</span>
+                    <p id="firmwareMd5">--</p>
+                </div>
+
+                <div>
+                    <span>Last Update</span>
+                    <p id="timestamp">--</p>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Behavior -->
+
+        <section>
+
+            <h2>Behavior Monitoring</h2>
+
+            <div class="behavior-grid">
+
+                <div class="behavior-card">
+                    <span>Packet Rate</span>
+                    <strong id="packetRate">--</strong>
+                    <small>packets/sec</small>
+                </div>
+
+                <div class="behavior-card">
+                    <span>Request Rate</span>
+                    <strong id="requestRate">--</strong>
+                    <small>requests/sec</small>
+                </div>
+
+                <div class="behavior-card">
+                    <span>Heap Change</span>
+                    <strong id="heapChange">--</strong>
+                    <small>bytes</small>
+                </div>
+
+                <div class="behavior-card">
+                    <span>RSSI Change</span>
+                    <strong id="rssiChange">--</strong>
+                    <small>dBm</small>
+                </div>
+
+                <div class="behavior-card">
+                    <span>Unexpected Reboot</span>
+                    <strong id="reboot">--</strong>
+                </div>
+
+                <div class="behavior-card">
+                    <span>Anomaly Score</span>
+                    <strong id="anomalyScore">--</strong>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <footer>
+            Last refreshed:
+            <span id="lastRefresh">--</span>
+        </footer>
+
+    </main>
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>

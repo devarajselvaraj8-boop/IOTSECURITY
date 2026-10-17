@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>IoT Cybersecurity Monitoring Dashboard</title>
+
+    <link rel="stylesheet" href="style.css">
+    <script src="chart.umd.min.js"></script>
+    <script>
+        if (typeof Chart === "undefined") {
+            document.write('<script src="https://cdn.jsdelivr.net/npm/chart.js"><\/script>');
+        }
+    </script>
+</head>
+
+<body>
+
+    <!-- Header & Top Navigation -->
+    <header>
+        <div class="header-left">
+            <div class="brand">
+                <span class="brand-icon">⚡</span>
+                <div>
+                    <h1>IoT Security Center</h1>
+                    <p>Real-Time Behavioral Defense & Threat Intelligence</p>
+                </div>
+            </div>
+
+            <nav class="nav-links">
+                <a href="#overviewSection" class="nav-item active">Overview</a>
+                <a href="#deviceInfoSection" class="nav-item">Live Telemetry</a>
+                <a href="#simSection" class="nav-item">Simulate</a>
+                <a href="#chartsSection" class="nav-item">Analytics</a>
+                <a href="#alertsSection" class="nav-item">Alerts</a>
+                <a href="#historySection" class="nav-item">History</a>
+            </nav>
+        </div>
+
+        <div class="header-right">
+            <!-- Active Device Switcher -->
+            <div class="device-switcher-box">
+                <label for="deviceSelector">Active Device:</label>
+                <select id="deviceSelector" onchange="onDeviceSelectorChange(this.value)">
+                    <option value="ESP8266-01">ESP8266-01 (Registered)</option>
+                </select>
+            </div>
+
+            <!-- Connection Indicator -->
+            <div class="connection">
+                <span id="connectionDot"></span>
+                <span id="connectionText">Connecting...</span>
+            </div>
+        </div>
+    </header>
+
+
+    <main>
+
+        <!-- Device Fleet Overview Table -->
+        <section id="overviewSection" class="overview-section">
+            <div class="section-header-flex">
+                <div>
+                    <h2>Device Fleet Overview</h2>
+                    <p class="section-desc">Monitored IoT endpoints, identity verification status, and real-time security risk postures</p>
+                </div>
+                <div class="section-actions">
+                    <button class="btn-primary" onclick="openDeviceModal()">+ Register New Device</button>
+                    <button class="btn-secondary" onclick="loadDeviceList()">🔄 Refresh Devices</button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="fleet-table">
+                    <thead>
+                        <tr>
+                            <th>Device ID</th>
+                            <th>MAC Address</th>
+                            <th>IP Address</th>
+                            <th>Identity Status</th>
+                            <th>Firmware Status</th>
+                            <th>ML Status</th>
+                            <th>Security Posture</th>
+                            <th>Risk Score</th>
+                            <th>Last Activity</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="fleetTableBody">
+                        <tr>
+                            <td colspan="10" style="text-align: center; color: #94a3b8; padding: 20px;">Loading fleet status...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+
+        <!-- Selected Device Information -->
+        <section id="deviceInfoSection" class="device-section">
+            <div class="section-header-flex">
+                <h2>Target Device Information <span id="targetDeviceBadge" class="target-badge">ESP8266-01</span></h2>
+                <div class="device-filter-notice">Showing data filtered for: <strong id="filterDeviceName">ESP8266-01</strong></div>
+            </div>
+
+            <div class="cards">
+                <div class="card">
+                    <span>Device ID</span>
+                    <strong id="deviceId">--</strong>
+                </div>
+
+                <div class="card">
+                    <span>MAC Address</span>
+                    <strong id="mac">--</strong>
+                </div>
+
+                <div class="card">
+                    <span>IP Address</span>
+                    <strong id="ip">--</strong>
+                </div>
+
+                <div class="card">
+                    <span>Firmware Version</span>
+                    <strong id="firmware">--</strong>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- Security Status & Risk Score -->
+        <section>
+            <div class="section-header-flex">
+                <h2>Security & Risk Posture (Multi-Layer Defense)</h2>
+                <div id="telemetryStatusNotice" class="telemetry-live-status">
+                    <span class="live-pulse"></span>
+                    <span id="telemetryStatusText">Live Telemetry Synchronized</span>
+                </div>
+            </div>
+
+            <div class="security-cards six-cols">
+                <div class="security-card">
+                    <span>Identity Status</span>
+                    <strong id="identityStatus">REGISTERED</strong>
+                </div>
+
+                <div class="security-card">
+                    <span>Firmware Integrity</span>
+                    <strong id="firmwareStatus">VALID</strong>
+                </div>
+
+                <div class="security-card">
+                    <span>ML Observation (Sample)</span>
+                    <strong id="mlStatus">NORMAL</strong>
+                </div>
+
+                <div class="security-card">
+                    <span>Anomaly Persistence</span>
+                    <div class="streak-box">
+                        <strong id="anomalyStreakDisplay">0 / 3</strong>
+                        <small id="streakStateLabel">Baseline</small>
+                    </div>
+                </div>
+
+                <div class="security-card">
+                    <span>Overall Security Posture</span>
+                    <strong id="securityStatus">TRUSTED</strong>
+                </div>
+
+                <div class="security-card risk-card">
+                    <span>Security Risk Score</span>
+                    <div class="risk-metric">
+                        <strong id="riskScore">0 / 100</strong>
+                        <span id="riskLevelBadge" class="badge risk-low">LOW</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- Telemetry -->
+        <section>
+            <h2>Live Telemetry</h2>
+
+            <div class="cards">
+                <div class="card">
+                    <span>RSSI</span>
+                    <strong id="rssi">--</strong>
+                    <small>dBm</small>
+                </div>
+
+                <div class="card">
+                    <span>Free Heap</span>
+                    <strong id="heap">--</strong>
+                    <small>bytes</small>
+                </div>
+
+                <div class="card">
+                    <span>Uptime</span>
+                    <strong id="uptime">--</strong>
+                    <small>seconds</small>
+                </div>
+
+                <div class="card">
+                    <span>Packets Received</span>
+                    <strong id="packets">--</strong>
+                </div>
+
+                <div class="card">
+                    <span>Requests Processed</span>
+                    <strong id="requests">--</strong>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- Firmware Integrity Verification -->
+        <section>
+            <h2>Firmware Verification (Cryptographic Integrity)</h2>
+
+            <div class="firmware-box">
+                <div>
+                    <span>Expected Registered MD5</span>
+                    <p id="expectedFirmwareMd5">--</p>
+                </div>
+
+                <div>
+                    <span>Reported Telemetry MD5</span>
+                    <p id="firmwareMd5">--</p>
+                </div>
+
+                <div>
+                    <span>Firmware Status</span>
+                    <p id="firmwareIntegrityDisplay"><span class="badge normal">VALID</span></p>
+                </div>
+
+                <div>
+                    <span>Last Telemetry Update</span>
+                    <p id="timestamp">--</p>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- Behavior Monitoring & Explainable ML -->
+        <section>
+            <h2>Behavior Monitoring & Explainable ML</h2>
+
+            <div class="behavior-grid">
+                <div class="behavior-card">
+                    <span>Packet Rate</span>
+                    <strong id="packetRate">--</strong>
+                    <small>packets/sec</small>
+                </div>
+
+                <div class="behavior-card">
+                    <span>Request Rate</span>
+                    <strong id="requestRate">--</strong>
+                    <small>requests/sec</small>
+                </div>
+
+                <div class="behavior-card">
+                    <span>Heap Change</span>
+                    <strong id="heapChange">--</strong>
+                    <small>bytes</small>
+                </div>
+
+                <div class="behavior-card">
+                    <span>RSSI Change</span>
+                    <strong id="rssiChange">--</strong>
+                    <small>dBm</small>
+                </div>
+
+                <div class="behavior-card">
+                    <span>Unexpected Reboot</span>
+                    <strong id="reboot">--</strong>
+                    <small id="uptimeEvidence">--</small>
+                </div>
+
+                <div class="behavior-card">
+                    <span>Isolation Forest Score</span>
+                    <div class="score-display-box">
+                        <strong id="anomalyScore">--</strong>
+                        <span id="scoreInterpretationBadge" class="badge normal">Normal Decision</span>
+                    </div>
+                </div>
+
+                <div class="behavior-card reason-card">
+                    <span>State Reason & Root Cause Attribution</span>
+                    <strong id="anomalyReason">Device behavior is within the learned normal baseline.</strong>
+                </div>
+            </div>
+
+            <!-- Recent Observations Timeline -->
+            <div class="recent-timeline-box">
+                <h3>Recent Observations Timeline (Last 5 Samples)</h3>
+                <div class="timeline-table-container">
+                    <table class="timeline-table">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>ML Observation</th>
+                                <th>Decision Score</th>
+                                <th>Packet Rate</th>
+                                <th>Free Heap</th>
+                                <th>RSSI</th>
+                            </tr>
+                        </thead>
+                        <tbody id="timelineTableBody">
+                            <tr>
+                                <td colspan="6" style="text-align: center; color: #94a3b8; padding: 10px;">Waiting for telemetry samples...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- Attack / Anomaly Simulation Controls -->
+        <section id="simSection" class="simulation-section">
+            <div class="simulation-header">
+                <div>
+                    <h2>Attack / Anomaly Simulation (Safe Evaluation Mode)</h2>
+                    <p class="section-desc">Generate synthetic telemetry in-memory to safely evaluate detection algorithms without affecting real network traffic or hardware.</p>
+                </div>
+                <div class="sim-target-select">
+                    <label for="simTargetDevice">Simulation Target:</label>
+                    <select id="simTargetDevice">
+                        <option value="ESP8266-01">ESP8266-01</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="simulation-buttons">
+                <button class="sim-btn" onclick="triggerSimulation('traffic_spike')">Traffic Spike</button>
+                <button class="sim-btn" onclick="triggerSimulation('memory_stress')">Memory Stress</button>
+                <button class="sim-btn" onclick="triggerSimulation('signal_anomaly')">Signal Anomaly</button>
+                <button class="sim-btn" onclick="triggerSimulation('reboot_anomaly')">Reboot Anomaly</button>
+                <button class="sim-btn" onclick="triggerSimulation('combined_anomaly')">Combined Anomaly</button>
+                <button class="sim-btn warn" onclick="triggerSimulation('firmware_tamper')">Firmware Tamper</button>
+            </div>
+
+            <div id="simResultBox" class="sim-result-box" style="display: none;">
+                <div class="sim-result-header">
+                    <span class="sim-title">SIMULATION RESULT</span>
+                    <span id="simResultBadge" class="badge">ANOMALY</span>
+                </div>
+                <div class="sim-result-grid">
+                    <div><span>Target Device:</span> <strong id="simResultTarget">--</strong></div>
+                    <div><span>Simulation Type:</span> <strong id="simResultType">--</strong></div>
+                    <div><span>ML Detection:</span> <strong id="simResultDetection">--</strong></div>
+                    <div><span>Threat:</span> <strong id="simResultThreat">--</strong></div>
+                    <div><span>Anomaly Score:</span> <strong id="simResultScore">--</strong></div>
+                    <div><span>Security Status:</span> <strong id="simResultSecurity">--</strong></div>
+                    <div><span>Firmware Status:</span> <strong id="simResultFirmware">--</strong></div>
+                    <div><span>Risk Score:</span> <strong id="simResultRisk">--</strong></div>
+                    <div class="sim-result-full"><span>Reason:</span> <strong id="simResultReason">--</strong></div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- Behavioral & Security Graphs -->
+        <section id="chartsSection" class="charts-section">
+            <div class="section-header-flex">
+                <h2>Live Behavioral & Security Graphs</h2>
+                <div class="device-filter-notice">Plotting: <strong id="chartDeviceName">ESP8266-01</strong></div>
+            </div>
+
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3>RSSI History (dBm)</h3>
+                    <div class="chart-container">
+                        <canvas id="rssiChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h3>Packet Rate (packets/sec)</h3>
+                    <div class="chart-container">
+                        <canvas id="packetRateChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h3>Request Rate (requests/sec)</h3>
+                    <div class="chart-container">
+                        <canvas id="requestRateChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h3>Free Heap Memory (bytes)</h3>
+                    <div class="chart-container">
+                        <canvas id="heapChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h3>Anomaly Score</h3>
+                    <div class="chart-container">
+                        <canvas id="anomalyChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h3>Detection Status (Normal vs Anomaly)</h3>
+                    <div class="chart-container">
+                        <canvas id="statusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- Real-Time Security Alerts & Incidents -->
+        <section id="alertsSection" class="alerts-section">
+            <div class="alerts-header">
+                <div>
+                    <h2>Security Alerts & Incidents</h2>
+                    <p class="section-desc">Automated incident response feed with deduplicated alert tracking</p>
+                </div>
+
+                <div class="alert-summary-cards">
+                    <div class="alert-stat-card">
+                        <span>Total Alerts</span>
+                        <strong id="alertSumTotal">0</strong>
+                    </div>
+                    <div class="alert-stat-card critical">
+                        <span>Critical</span>
+                        <strong id="alertSumCritical">0</strong>
+                    </div>
+                    <div class="alert-stat-card high">
+                        <span>High</span>
+                        <strong id="alertSumHigh">0</strong>
+                    </div>
+                    <div class="alert-stat-card medium">
+                        <span>Medium</span>
+                        <strong id="alertSumMedium">0</strong>
+                    </div>
+                    <div class="alert-stat-card low">
+                        <span>Low</span>
+                        <strong id="alertSumLow">0</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="alerts-table">
+                    <thead>
+                        <tr>
+                            <th>Severity</th>
+                            <th>Alert Type</th>
+                            <th>Threat</th>
+                            <th>Device ID</th>
+                            <th>Anomaly Score</th>
+                            <th>Timestamp</th>
+                            <th>Reason / Attribution</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="alertsTableBody">
+                        <tr>
+                            <td colspan="8" style="text-align: center; color: #94a3b8; padding: 20px;">Waiting for security alerts...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+
+        <!-- Detection History -->
+        <section id="historySection" class="history-section">
+            <div class="history-header">
+                <div>
+                    <h2>Detection History</h2>
+                    <p class="section-desc">Chronological log of verified security events and ML evaluations</p>
+                </div>
+
+                <div class="summary-pills">
+                    <span class="pill">Total: <strong id="sumTotal">0</strong></span>
+                    <span class="pill normal">Normal: <strong id="sumNormal">0</strong></span>
+                    <span class="pill danger">Anomalies: <strong id="sumAnomalies">0</strong></span>
+                    <span class="pill warn">Firmware Tampered: <strong id="sumTampered">0</strong></span>
+                    <span class="pill warn">Rogue Devices: <strong id="sumRogue">0</strong></span>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Device</th>
+                            <th>Security</th>
+                            <th>Firmware</th>
+                            <th>ML Detection</th>
+                            <th>Threat</th>
+                            <th>Anomaly Score</th>
+                            <th>Anomaly Reason</th>
+                            <th>Event Type</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody">
+                        <tr>
+                            <td colspan="9" style="text-align: center; color: #94a3b8; padding: 20px;">Loading detection history...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+
+        <footer>
+            Live Telemetry Synchronized | Enterprise IoT Cybersecurity Defense
+        </footer>
+
+    </main>
+
+
+    <!-- Device Management Modal -->
+    <div id="deviceModal" class="modal-overlay" style="display: none;">
+        <div class="modal-card modal-lg">
+            <div class="modal-header">
+                <h3>Device Fleet Management</h3>
+                <button class="close-btn" onclick="closeDeviceModal()">✕</button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Registration Form -->
+                <div class="modal-form-box">
+                    <h4>Register Authorized IoT Device</h4>
+                    <form id="registerDeviceForm" onsubmit="handleRegisterDevice(event)">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="regDeviceId">Device ID *</label>
+                                <input type="text" id="regDeviceId" required placeholder="e.g. ESP32-02">
+                            </div>
+                            <div class="form-group">
+                                <label for="regMac">MAC Address *</label>
+                                <input type="text" id="regMac" required placeholder="e.g. 30:AE:A4:01:02:03">
+                            </div>
+                            <div class="form-group">
+                                <label for="regIp">IP Address</label>
+                                <input type="text" id="regIp" placeholder="e.g. 192.168.1.105">
+                            </div>
+                            <div class="form-group">
+                                <label for="regFirmware">Firmware Version</label>
+                                <input type="text" id="regFirmware" value="1.0.0" placeholder="1.0.0">
+                            </div>
+                            <div class="form-group span-2">
+                                <label for="regMd5">Expected Firmware MD5</label>
+                                <input type="text" id="regMd5" value="7e324de5695029e84b0f91b7e6ef4050" placeholder="7e324de5695029e84b0f91b7e6ef4050">
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">Register Device</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Existing Registered Devices List -->
+                <div class="modal-table-box">
+                    <h4>Currently Registered Devices</h4>
+                    <div class="table-container small">
+                        <table class="modal-table">
+                            <thead>
+                                <tr>
+                                    <th>Device ID</th>
+                                    <th>MAC</th>
+                                    <th>Firmware</th>
+                                    <th>Registered On</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="registeredDevicesTableBody">
+                                <tr>
+                                    <td colspan="5" style="text-align: center; color: #94a3b8;">Loading registered devices...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
